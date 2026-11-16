@@ -8,6 +8,7 @@ import { MemeWarBoard } from "@/components/memewar/MemeWarBoard";
 import { BunkerLpBoard } from "@/components/bunker/BunkerLpBoard";
 import { WarCommandDeck, type DeckJump } from "@/components/command/WarCommandDeck";
 import { DeathClockBanner } from "@/components/arena/DeathClockBanner";
+import { CullBoard } from "@/components/arena/CullBoard";
 import { VaultSplitCard } from "@/components/arena/VaultSplitCard";
 import { hapticSelect } from "@/lib/telegram";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,7 @@ export function PlayTab({ onOpenSwap }: { onOpenSwap?: () => void }) {
     <div className="mx-auto w-full max-w-lg space-y-2">
       <WarCommandDeck onJump={jump} />
       <DeathClockBanner />
+      <CullBoard />
       <Link to="/war-map" className="hud-chip justify-center py-1.5 text-[11px] font-black uppercase">Tactical War Map · claim sectors</Link>
       <div id="play-front" className="hud-segment scroll-mt-2 p-0.5">
         {fronts.map((f) => (

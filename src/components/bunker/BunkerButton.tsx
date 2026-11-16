@@ -7,6 +7,7 @@ import { BunkerLpBoard } from "@/components/bunker/BunkerLpBoard";
 import { useWarRoom } from "@/hooks/use-war-room";
 import { SPLIT, conviction } from "@/lib/apocalypse/vault-split";
 import { BUNKER_LP_RULES } from "@/lib/bunker/lp";
+import { StakingTab } from "@/components/bunker/StakingTab";
 
 const usd = (n: number) => `$${n.toLocaleString(undefined, { maximumFractionDigits: n < 100 ? 2 : 0 })}`;
 
@@ -35,10 +36,15 @@ function BunkerModal({ open, onClose }: { open: boolean; onClose: () => void }) 
   const daysLeft = Math.max(0, Math.ceil((new Date(BUNKER_LP_RULES.until).getTime() - Date.now()) / 86_400_000));
   const v = Math.max(0, Number(value) || 0);
   const weight = conviction({ id: "me", valueUsd: v, days });
+  const [tab, setTab] = useState<"lp" | "stake">("lp");
 
   return (
     <TacticalModal open={open} onClose={onClose} title="Bunker" subtitle="Shelter liquidity until Doomsday" icon={<Shield className="h-5 w-5" />}>
-      <div className="space-y-3">
+      <div className="hud-segment mb-3 flex gap-1 p-0.5">
+        <button type="button" onClick={() => setTab("lp")} className={`hud-chip flex-1 justify-center ${tab === "lp" ? "ring-1 ring-primary" : "opacity-70"}`}>Meme LP Shelter</button>
+        <button type="button" onClick={() => setTab("stake")} className={`hud-chip flex-1 justify-center ${tab === "stake" ? "ring-1 ring-primary" : "opacity-70"}`}>TON Yield Staking</button>
+      </div>
+      {tab === "stake" ? <StakingTab /> : <div className="space-y-3">
         <TacticalSection label="How the Bunker works">
           <ul className="space-y-1.5 text-[11px] leading-snug text-muted-foreground">
             <li><b className="text-foreground">Non-custodial:</b> you add liquidity to a real STON.fi pool and sign in your own wallet. The LP tokens stay in your wallet.</li>
@@ -68,7 +74,7 @@ function BunkerModal({ open, onClose }: { open: boolean; onClose: () => void }) 
         <TacticalSection label="Pick a coin to shelter">
           <BunkerLpBoard />
         </TacticalSection>
-      </div>
+      </div>}
     </TacticalModal>
   );
 }

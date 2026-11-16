@@ -12,6 +12,9 @@ import { AGENTS, agentConfidence, isHot, radiationSeverity, sectorStatus, type S
 import { cn } from "@/lib/utils";
 import { shareUrl } from "@/lib/telegram";
 import { REFERRAL_BOT } from "@/lib/referrals.shared";
+import { HarvestBanner } from "./HarvestBanner";
+import { useWarMap } from "@/hooks/use-war-map";
+import { MAP_FACTIONS } from "@/lib/warmap/tiles";
 
 export type DeckJump = "board" | "bunker" | "swap";
 type View = "intel" | "log" | "whales" | "apex";
@@ -55,6 +58,7 @@ export function WarCommandDeck({ onJump, fill = false }: { onJump?: (to: DeckJum
   }, []);
 
   const sectors = data?.sectors ?? [];
+  const map = useWarMap();
   const rad = data?.radiation.level ?? 0;
   const sev = radiationSeverity(rad);
   const msLeft = data && now !== null ? Math.max(0, data.timer.msLeft - (now - data.generatedAt)) : null;
@@ -108,6 +112,11 @@ export function WarCommandDeck({ onJump, fill = false }: { onJump?: (to: DeckJum
       {!open && <p className={cn("truncate font-mono text-[10px]", flash === "green" ? "text-neon-green" : flash === "amber" ? "text-neon-amber" : "text-muted-foreground")}>{flash && lastWhale ? `🐋 ${lastWhale.side === "buy" ? "Whale bought" : "Whale dumped"} ${usd(lastWhale.usd)} ${lastWhale.symbol}` : log[1]?.text ?? log[0]?.text}</p>}
       {open && (<>
 
+      <HarvestBanner signals={data?.signals ?? []} onPromote={setPromo} />
+      <div className="flex items-center gap-1 font-mono text-[9px] tabular-nums" aria-label="War Map territory">
+        <span className="hud-label">Map</span>
+        {MAP_FACTIONS.map((f) => <span key={f} className="hud-chip px-1 py-0">{f} {((map.shares[f] ?? 0) * 100).toFixed(1)}%</span>)}
+      </div>
       {/* Territory: one tile per faction, real logos */}
       <div className="grid grid-cols-4 gap-1">
         {sectors.length === 0 && Array.from({ length: 4 }).map((_, i) => <div key={i} className="hud-card skeleton-shimmer h-14" />)}
