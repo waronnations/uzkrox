@@ -1,6 +1,7 @@
 // src/components/game/GameModals.tsx
 import { TutorialModal } from "@/components/TutorialModal";
-import { IdleWelcomeModal } from "@/components/IdleWelcomeModal";
+import { useEffect } from "react";
+import { toast } from "sonner";
 import { DailyBonusModal } from "@/components/DailyBonusModal";
 import { NukedLockModal } from "@/components/NukedLockModal";
 import { OpsJailModal } from "@/components/OpsJailModal";
@@ -59,14 +60,20 @@ export function GameModals({
         }}
       />
 
-      <IdleWelcomeModal
-        reward={game.state.pendingIdleReward}
-        onClose={() => {
-          game.claimIdleReward();
-          void forceSync();
-        }}
-      />
+      <IdleRewardAutoClaim game={game} forceSync={forceSync} />
 
     </>
   );
+}
+
+/** Idle earnings are credited silently with a toast instead of a launch pop-up. */
+function IdleRewardAutoClaim({ game, forceSync }: { game: any; forceSync: () => unknown }) {
+  const reward = game.state.pendingIdleReward;
+  useEffect(() => {
+    if (!reward) return;
+    game.claimIdleReward();
+    void forceSync();
+    toast.success("Idle earnings collected");
+  }, [reward]); // eslint-disable-line react-hooks/exhaustive-deps
+  return null;
 }

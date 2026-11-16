@@ -521,3 +521,17 @@ body {
 @utility wc-pulse { animation: wc-pulse 1.4s ease-in-out infinite; }
 @utility wc-rad { animation: wc-rad 1.8s ease-in-out infinite; }
 @utility wc-snap { scroll-snap-type: x mandatory; scrollbar-width: none; &::-webkit-scrollbar { display: none; } }
+
+/* Launch intro */
+.intro-void {
+  position: absolute; inset: -20%;
+  background: radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 55%);
+  animation: intro-breathe 6s ease-in-out infinite;
+}
+.intro-scan {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.25;
+  background: repeating-linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 8%, transparent) 0 1px, transparent 1px 4px);
+}
+.intro-glow { text-shadow: 0 0 24px color-mix(in oklab, var(--primary) 70%, transparent); }
+.intro-cta { box-shadow: 0 0 30px color-mix(in oklab, var(--primary) 40%, transparent); animation: intro-breathe 3s ease-in-out infinite; }
+@keyframes intro-breathe { 0%,100% { transform: scale(1); opacity: .8 } 50% { transform: scale(1.06); opacity: 1 } }

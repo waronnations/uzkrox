@@ -17,6 +17,7 @@ import { SubTabBar } from "@/components/game/SubTabBar";
 import { LayoutGrid, ClipboardList, Crosshair } from "lucide-react";
 import { PrimaryTabBar, type PrimaryTab } from "@/components/game/PrimaryTabBar";
 import { GameModals } from "@/components/game/GameModals";
+import { IntroSequence } from "@/components/intro/IntroSequence";
 import { PlayTab } from "@/components/game/tabs/PlayTab";
 import { OpsTab } from "@/components/game/tabs/OpsTab";
 import { WorldTab, type WorldSub } from "@/components/game/tabs/WorldTab";
@@ -105,23 +106,23 @@ function WaronMergePage() {
     initTelegram();
   }, []);
 
+  const [showIntro, setShowIntro] = useState(false);
   useEffect(() => {
-    if (!game.hydrated) return;
-    if (!game.state.hasSeenTutorial) {
-      setShowTutorial(true);
-      return;
-    }
-    let seenToday = false;
     try {
-      seenToday = window.localStorage.getItem(briefingKey()) === "1";
-    } catch {
-      /* storage blocked */
+      if (window.sessionStorage.getItem("intro-seen") !== "1") setShowIntro(true);
+    } catch { /* storage blocked */ }
+  }, []);
+  const finishIntro = useCallback(() => {
+    setShowIntro(false);
+    try { window.sessionStorage.setItem("intro-seen", "1"); } catch { /* storage blocked */ }
+    setTab("play");
+    setWarSub("board");
+    if (!game.state.hasSeenTutorial) {
+      if (typeof game.grantStarterPack === "function") game.grantStarterPack();
+      else game.dismissTutorial?.();
+      void forceSync();
     }
-    if (!seenToday || game.canClaimDaily()) {
-      const t = setTimeout(() => setShowBriefing(true), 400);
-      return () => clearTimeout(t);
-    }
-  }, [game.hydrated, game.canClaimDaily, game.state.hasSeenTutorial]);
+  }, [game, forceSync]);
 
   useEffect(() => {
     if (!authenticated) return;
@@ -376,6 +377,8 @@ function WaronMergePage() {
         }}
         onClose={closeBriefing}
       />
+
+      {showIntro && <IntroSequence onDone={finishIntro} />}
 
       <GameModals
         game={game}
