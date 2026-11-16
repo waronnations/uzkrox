@@ -1,0 +1,13 @@
+# Roadmap (Meme Mayhem unified spec)
+- [x] Collapsible command deck on home + Raid Squad share
+- [x] 4-source coin logo lookup (TonAPI, STON.fi, DeDust, swap.coffee)
+- [x] Top-100 / 50 USD₮ promo / 6h Death Clock rules (tested)
+- [x] 60/25/15 vault split rules (tested)
+- [x] Whale filter rules (tested)
+- [x] Death Clock banner + promoted-slot payment screen
+- [x] Live whale feed + vault split shown in HUD/Bunker
+- [x] Syndicate rules: tiles, citadel, 60/40 fees, harvest, culling, survivor weight (tested)
+- [x] Tactical War Map page (practice claims)
+- [ ] Paid tile claims in GRAM via TonConnect — needs marketing wallet address
+- [ ] TON/GRAM staking — needs a staking provider choice (Tonstakers/Hipo)
+- [ ] AI harvest/culling execution — needs market price feed for RSI
