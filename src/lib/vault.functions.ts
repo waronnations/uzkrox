@@ -41,7 +41,10 @@ export const claimVaultFn = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     if (!(await bootVault())) return { ok: false as const, error: "Saving isn't available yet" };
     const uid = await requireUserId();
-    assertRateLimit(`vault:${uid}`, 5, 60_000);
+    const { requireMoney } = await import("@/lib/money/config.server");
+    const { assertRateLimitShared } = await import("@/lib/rate-limit.server");
+    try { requireMoney("vault_voucher"); await assertRateLimitShared(`vault:${uid}`, 5, 60_000); }
+    catch (e) { const m = e instanceof Error ? e.message : "claim_failed"; return { ok: false as const, error: m.startsWith("config_incomplete") ? "config_incomplete" : m }; }
     const wallet = (await loadUser(uid))?.walletAddress ?? null;
     if (!wallet) return { ok: false as const, error: "Connect your TON wallet first" };
     const { issueVoucher } = await import("@/lib/vault/vault.server");

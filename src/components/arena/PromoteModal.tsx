@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
 import { Megaphone, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { moneyErrorText } from "@/lib/money/errors";
 import { TacticalModal } from "@/components/ui/TacticalModal";
 import { CoinLogo } from "@/components/memewar/CoinLogo";
 import { preparePromoFn, confirmPromoFn } from "@/lib/arena.functions";
@@ -27,7 +28,7 @@ export function PromoteModal({ coin, onClose, onPaid }: { coin: PromoCoin | null
     setBusy("Preparing…");
     try {
       const p = await prepare({ data: { owner, master: coin.master, symbol: coin.symbol } });
-      if (!p.ok) throw new Error(p.error);
+      if (!p.ok) throw new Error(moneyErrorText(p.error));
       await import("@/lib/onchain/buffer-polyfill");
       const { toNano } = await import("@ton/core");
       const { resolveUserJettonWallet, buildJettonTransferBodySafe } = await import("@/lib/onchain/topup-tx");
@@ -43,6 +44,7 @@ export function PromoteModal({ coin, onClose, onPaid }: { coin: PromoCoin | null
       for (let i = 0; i < 20; i++) {
         const r = await confirm({ data: { id: p.id, owner, boc } });
         boc = null;
+        if (!r.ok) throw new Error(moneyErrorText(r.error));
         if (r.status === "confirmed") {
           toast.success(`${coin.symbol} is promoted for ${PROMO_DAYS} days`);
           onPaid?.();

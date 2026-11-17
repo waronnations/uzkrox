@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
 import { Loader2, ZoomOut, FlaskConical, Radio } from "lucide-react";
 import { toast } from "sonner";
+import { moneyErrorText } from "@/lib/money/errors";
 import { TacticalModal } from "@/components/ui/TacticalModal";
 import { MAP_SIZE, tileCost, splitMapFee, citadelMultiplier, mapShares, type Tile } from "@/lib/syndicate/rules";
 import { BLOCK, genesisTiles, blockLabel, sectorLabel, isFrontline } from "@/lib/warmap/demo";
@@ -116,7 +117,7 @@ export function WarMap() {
     setBusy("Preparing…");
     try {
       const p = await prepare({ data: { owner, idx: pick, faction } });
-      if (!p.ok) throw new Error(p.error);
+      if (!p.ok) throw new Error(moneyErrorText(p.error));
       await import("@/lib/onchain/buffer-polyfill");
       const { tileMessages } = await import("@/lib/warmap/tile-tx");
       setBusy("Confirm in your wallet…");
@@ -126,8 +127,11 @@ export function WarMap() {
       for (let i = 0; i < 20; i++) {
         const r = await confirm({ data: { id: p.id, owner, boc } });
         boc = null;
-        if (r.status === "confirmed") { toast.success(`Sector claimed for $${faction}`); live.refresh(); return setPick(null); }
+        if (!r.ok) throw new Error(moneyErrorText(r.error));
+        if (r.status === "confirmed") { toast.success(`${sectorLabel(pick)} confirmed on-chain for $${faction}`); live.refresh(); return setPick(null); }
         if (r.status === "failed") throw new Error("Payment didn't match — sector not claimed");
+        if (r.status === "expired") throw new Error("Claim expired before payment landed — sector not claimed");
+        if (i === 0) toast.message("Payment pending — waiting for on-chain confirmation");
         await new Promise((ok) => setTimeout(ok, 4000));
       }
       toast.message("Still confirming — the sector appears once the payment lands");

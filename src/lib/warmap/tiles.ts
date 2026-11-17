@@ -27,3 +27,15 @@ export function settledTile(e: TileEvidence, x: { owner: string; vault: string; 
   });
   return leg(x.vault, x.vaultNano) && leg(x.marketing, x.marketingNano) ? ("confirmed" as const) : ("failed" as const);
 }
+
+/** A pending claim keeps its sector locked for the payment window plus 5 min of confirmation slack. */
+export const TILE_LOCK_MS = TILE_TTL_MS + 5 * 60_000;
+export const isClaimExpired = (createdAt: number, now: number) => now > createdAt + TILE_LOCK_MS;
+
+/**
+ * Race policy: ONE open (non-expired, pending) claim per sector. A second prepare on the same
+ * sector while one is open is "sector_contested", so two players can never both pay for it.
+ */
+export function sectorContested(openPendingCreatedAts: number[], now: number) {
+  return openPendingCreatedAts.some((c) => !isClaimExpired(c, now));
+}

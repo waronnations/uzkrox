@@ -4,6 +4,7 @@ import { sql } from "@/lib/db/client.server";
 import { buildArena, type ArenaToken } from "./roster";
 import { PROMO_TTL_MS, USDT_MASTER, promoComment, promoExpiry, promoUnits, settledPromo, type PromoEvidence } from "./promo";
 import { PROMO_MIN_USDT } from "./roster";
+import { moneyLog } from "@/lib/money/config.server";
 
 let ready: Promise<void> | null = null;
 export function ensureArenaSchema() {
@@ -58,7 +59,7 @@ export async function preparePromo(userId: string | number, owner: string, coin:
 }
 
 /** Confirms via TonAPI events; replay-safe because event_id is unique. */
-export async function confirmPromo(userId: string | number, id: string, hash: string | null, raw: { owner: string; treasury: string; usdt: string }) {
+export async function confirmPromo(userId: string | number, id: string, hash: string | null, raw: { owner: string; treasury: string; usdt: string }, tonapiKey: string) {
   await ensureArenaSchema();
   const r = await sql`SELECT * FROM arena_promotions WHERE id = ${id} AND user_id = ${String(userId)}`;
   const row = r.rows[0];
@@ -69,14 +70,13 @@ export async function confirmPromo(userId: string | number, id: string, hash: st
   let h = row["message_hash"] ? String(row["message_hash"]) : null;
   if (hash && !h) { h = hash; await sql`UPDATE arena_promotions SET message_hash = ${hash} WHERE id = ${id} AND message_hash IS NULL`; }
   if (!h) return { status: "pending" as const };
-  const key = process.env.TONAPI_KEY;
-  const res = await fetch(`https://tonapi.io/v2/events/${h}`, { headers: key ? { Authorization: `Bearer ${key}` } : {}, signal: AbortSignal.timeout(8000) });
+  const res = await fetch(`https://tonapi.io/v2/events/${h}`, { headers: { Authorization: `Bearer ${tonapiKey}` }, signal: AbortSignal.timeout(8000) });
   if (res.status === 404) return { status: "pending" as const };
-  if (!res.ok) throw new Error("confirmation_service_unavailable");
+  if (!res.ok) { moneyLog("tonapi_error", { path: "promo_confirm", status: res.status }); throw new Error("confirmation_service_unavailable"); }
   const ev = (await res.json()) as PromoEvidence & { event_id: string };
   const status = settledPromo(ev, { owner: raw.owner, treasury: raw.treasury, usdtMaster: raw.usdt, units: promoUnits().toString(), comment: promoComment(id), createdAt });
   if (status !== "confirmed") {
-    if (status === "failed") await sql`UPDATE arena_promotions SET status = 'failed' WHERE id = ${id}`;
+    if (status === "failed") { moneyLog("settlement_mismatch", { path: "promo_confirm" }); await sql`UPDATE arena_promotions SET status = 'failed' WHERE id = ${id} AND status = 'pending'`; }
     return { status };
   }
   const cur = await sql`SELECT MAX(expires_at) AS exp FROM arena_promotions WHERE master = ${String(row["master"])} AND status = 'confirmed'`;

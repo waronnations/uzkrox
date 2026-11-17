@@ -16,6 +16,7 @@ export function StakingTab({ citadel = 1 }: { citadel?: number }) {
   const get = useServerFn(getStakingPoolsFn);
   const { data, loading } = useCachedQuery("staking:pools", 600_000, () => get());
   const pools = data?.pools ?? [];
+  const live = data?.live ?? false;
   const wallet = useTonWallet();
   const [ui] = useTonConnectUI();
   const [sel, setSel] = useState(0);
@@ -33,6 +34,7 @@ export function StakingTab({ citadel = 1 }: { citadel?: number }) {
   const weight = survivorWeight(valueGram, days, citadel);
 
   async function stake() {
+    if (!live) return;
     if (!wallet) return void ui.openModal();
     if (!pool || total === null) return;
     setBusy(true);
@@ -42,7 +44,7 @@ export function StakingTab({ citadel = 1 }: { citadel?: number }) {
       const bytes = new Uint8Array(depositBody(pool.kind).toBoc());
       let bin = ""; for (const b of bytes) bin += String.fromCharCode(b);
       await ui.sendTransaction({ validUntil: Math.floor(Date.now() / 1000) + 300, messages: [{ address: pool.address, amount: total.toString(), payload: btoa(bin) }] });
-      toast.success(`Staked ${amount} GRAM in ${pool.name}`);
+      toast.success(`Stake sent to ${pool.name} — it shows once the pool confirms it`);
       setAmount("");
     } catch (e) {
       const m = e instanceof Error ? e.message : "";
@@ -52,6 +54,7 @@ export function StakingTab({ citadel = 1 }: { citadel?: number }) {
 
   return (
     <div className="space-y-3">
+      {!live && <p className="hud-card p-2 text-[11px] text-muted-foreground">{data?.paused ? "Staking live path paused — setup is incomplete." : "Preview mode — survivor weight estimates only, no live deposits yet."}</p>}
       <TacticalSection label="Verified pools">
         {loading && <div className="hud-card skeleton-shimmer h-16" />}
         {!loading && !pools.length && <p className="text-[11px] text-muted-foreground">Pools are unavailable right now. Try again shortly.</p>}
@@ -74,8 +77,8 @@ export function StakingTab({ citadel = 1 }: { citadel?: number }) {
           {total !== null && <p className="mt-1 text-[10px] text-muted-foreground">Wallet sends {(Number(total) / 1e9).toFixed(2)} GRAM incl. pool fee (unused part is returned).</p>}
           <div className="hud-card mt-2 flex justify-between p-2 text-xs"><span>Survivor weight boost</span><b className="font-mono">{weight.toFixed(1)}{citadel > 1 ? ` (×${citadel})` : ""}</b></div>
           <p className="mt-1 text-[10px] text-muted-foreground">√value × (1 + days/7) × citadel bonus. Estimate only — your GRAM stays in the pool, not with us.</p>
-          <button type="button" disabled={busy || (!!wallet && total === null)} onClick={stake} className="cta-amber mt-2 flex w-full items-center justify-center gap-1.5 py-2.5 text-sm font-black uppercase">
-            {busy ? <><Loader2 className="h-4 w-4 animate-spin" />Confirm in wallet…</> : wallet ? "Stake" : "Connect wallet"}
+          <button type="button" disabled={!live || busy || (!!wallet && total === null)} onClick={stake} className="cta-amber mt-2 flex w-full items-center justify-center gap-1.5 py-2.5 text-sm font-black uppercase">
+            {busy ? <><Loader2 className="h-4 w-4 animate-spin" />Confirm in wallet…</> : !live ? "Estimate only" : wallet ? "Stake" : "Connect wallet"}
           </button>
         </TacticalSection>
       )}
