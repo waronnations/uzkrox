@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
-import { Loader2, ZoomOut, FlaskConical, Radio } from "lucide-react";
+import { Loader2, ZoomOut, FlaskConical, Radio, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { moneyErrorText } from "@/lib/money/errors";
 import { TacticalModal } from "@/components/ui/TacticalModal";
@@ -12,6 +12,9 @@ import { BLOCK, genesisTiles, blockLabel, sectorLabel, isFrontline } from "@/lib
 import { MAP_FACTIONS } from "@/lib/warmap/tiles";
 import { prepareTileFn, confirmTileFn } from "@/lib/warmap.functions";
 import { useWarMap } from "@/hooks/use-war-map";
+import { shareUrl, haptic } from "@/lib/telegram";
+import { playClick, playClaim } from "@/lib/sounds";
+import { ReconReport } from "./ReconReport";
 
 type Faction = (typeof MAP_FACTIONS)[number];
 const HUE: Record<string, number> = { DOGS: 30, NOT: 200, PEPE: 120, CAT: 300, SNOOP: 0 };
@@ -94,6 +97,7 @@ export function WarMap() {
   }, [tiles, pick, block, sweep]);
 
   const onTap = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    playClick(); haptic("light");
     const r = e.currentTarget.getBoundingClientRect();
     const fx = (e.clientX - r.left) / r.width, fy = (e.clientY - r.top) / r.height;
     if (!block) return setBlock([Math.min(9, Math.floor(fx * 10)), Math.min(9, Math.floor(fy * 10))]);
@@ -110,6 +114,7 @@ export function WarMap() {
     if (pick === null) return;
     if (sim) {
       setSimTiles((t) => ({ ...t, [pick]: { faction, price: cost } }));
+      playClaim();
       toast.success(`Simulated: ${sectorLabel(pick)} captured for $${faction}`);
       return setPick(null);
     }
@@ -152,6 +157,7 @@ export function WarMap() {
       </div>
       {sim && !owner && <p className="text-[10px] text-muted-foreground">Try the map freely. Connect a wallet and switch to live to claim real sectors.</p>}
       {!sim && liveEmpty && <p className="text-[10px] text-neon-amber">No sectors claimed yet — be the first to plant your flag.</p>}
+      {!sim && <ReconReport shares={live.shares} ready={!live.loading} />}
       <CitadelBar shares={shares} />
       <div className="hud-segment flex gap-1">
         {MAP_FACTIONS.map((f) => (
@@ -163,7 +169,7 @@ export function WarMap() {
         {block && <button type="button" className="hud-chip" onClick={() => setBlock(null)}><ZoomOut className="h-3.5 w-3.5" />Full map</button>}
       </div>
       <canvas ref={ref} width={600} height={600} onClick={onTap} className={`hud-card aspect-square w-full touch-none ${loading ? "skeleton-shimmer" : ""}`} aria-label="War Map grid" />
-      <p className="text-[10px] text-muted-foreground">Brighter sectors are fortified (taken more often, so pricier). Taking an enemy sector costs 1.5× its last price. Holding 15%+ of the map gives a +10% to +30% Doomsday weight bonus.</p>
+      <p className="text-[10px] text-muted-foreground">Brighter sectors are fortified (taken more often, so pricier). Taking an enemy sector costs 1.5× its last price. Holding 15%+ of the live map gives a +10% to +30% bonus on Doomsday weight and on Coin Board season points for that coin.</p>
       <TacticalModal open={pick !== null} onClose={() => !busy && setPick(null)} title={pick !== null ? `Sector ${sectorLabel(pick)}` : undefined} subtitle={cur ? `Held by $${cur.faction}` : "Unclaimed"}>
         <div className="flex flex-col gap-2 text-xs">
           {sim && <p className="text-neon-amber">Simulation — nothing is paid or saved.</p>}
@@ -176,6 +182,11 @@ export function WarMap() {
           <button type="button" disabled={!!busy || cur?.faction === faction} onClick={claim} className="cta-amber flex items-center justify-center gap-1.5 py-2 font-black uppercase">
             {busy ? <><Loader2 className="h-4 w-4 animate-spin" />{busy}</> : sim ? `Simulate claim · ${cost} GRAM` : owner ? `Claim for $${faction} · ${cost} GRAM` : "Connect wallet"}
           </button>
+          {pick !== null && (
+            <button type="button" onClick={() => { haptic("light"); shareUrl(window.location.origin + "/war-map", `Rally to sector ${sectorLabel(pick)} — help $${faction} take the War Map! ⚔️`); }} className="hud-chip flex min-h-11 items-center justify-center gap-1.5">
+              <Share2 className="h-3.5 w-3.5" /> Rally your squad
+            </button>
+          )}
         </div>
       </TacticalModal>
     </div>

@@ -11,3 +11,5 @@
 - [ ] Paid tile claims in GRAM via TonConnect — needs marketing wallet address
 - [ ] TON/GRAM staking — needs a staking provider choice (Tonstakers/Hipo)
 - [ ] AI harvest/culling execution — needs market price feed for RSI
+- [x] War Map → Coin Board synergy: live Citadel Dominance boosts season points (tested)
+- [x] Recon report on return, Rally-your-squad share, map tap/capture sounds

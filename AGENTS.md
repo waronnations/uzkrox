@@ -48,3 +48,4 @@ use the editor.
 - The War Command deck (`src/components/command/WarCommandDeck.tsx`) is shared by the Play tab and /war-command, so both views stay identical.
 - Arena promotions are 50 USD₮ jetton transfers to the Claim Treasury with a per-intent `PROMO:` comment, granted only after `settledPromo` (src/lib/arena/promo.ts) matches the TonAPI event, because a slot must never be granted on a client claim.
 - Whale Radar trades come from GeckoTerminal (src/lib/whale/radar.server.ts, 2-minute cache) and enter the public War Room snapshot without wallet addresses, so the free API limit holds and no personal data leaks.
+- Citadel synergy (`src/lib/warmap/synergy.ts`) boosts Coin Board season points only from the LIVE map, applied server-side at battle settlement, because simulation tiles must never change real standings.

@@ -1,4 +1,6 @@
 import { TacticalModal, TacticalSection } from "@/components/ui/TacticalModal";
+import { useWarMap } from "@/hooks/use-war-map";
+import { boostPoints, synergyMult } from "@/lib/warmap/synergy";
 // src/components/memewar/WarMergeModal.tsx
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -114,7 +116,9 @@ export function WarMergeModal({
   const highImpact = impact >= MEMEWAR_HIGH_IMPACT;
   const swapUsd = offerAmount * weak.coin.priceUsd;
   const taxUsd = tax ? warTaxUsd(swapUsd, tax.coin.master) : 0;
-  const points = seasonPoints(action, swapUsd);
+  const mapShares = useWarMap().shares;
+  const boost = synergyMult(ask.symbol, mapShares);
+  const points = boostPoints(seasonPoints(action, swapUsd), ask.symbol, mapShares);
 
   const blocker = demo
     ? "Connect your wallet to fight with your real coins."
@@ -269,7 +273,7 @@ export function WarMergeModal({
               <Row k="Pool fee" v={`${fmtAmount(fromUnits((exec ?? best).feeUnits, ask.decimals))} ${ask.symbol}`} />
               <Row k="War Tax" v={tax && taxAmt !== null ? `${fmtAmount(taxAmt)} ${tax.coin.symbol} (${fmtUsd(taxUsd)})` : "—"} />
               <Row k="Network gas" v="≈ 0.3 GRAM (unused part refunded)" />
-              <Row k="Season points" v={points > 0 ? `+${fmtAmount(points)} for ${ask.symbol}` : "none"} />
+              <Row k="Season points" v={points > 0 ? `+${fmtAmount(points)} for ${ask.symbol}${boost > 1 ? ` (Citadel +${Math.round((boost - 1) * 100)}%)` : ""}` : "none"} />
               <div className="mt-2 flex flex-wrap gap-1">
                 {quote?.quotes.map((q) => (
                   <span key={q.provider} className={cn("min-h-11 rounded-full border px-2 py-0.5 text-[10px] font-black", q === exec ? "border-success text-success" : "border-border text-muted-foreground")}>

@@ -9,6 +9,9 @@ import { eligibleTaxCoins, orderBattle, seasonPoints, swapAmount, toUnits, warTa
 import { settledBattle, type BattleEvidence } from "./battle-evidence";
 import { ensureWarSchema } from "./season.server";
 import type { WarAction } from "./types";
+import { warMapTiles } from "@/lib/warmap/warmap.server";
+import { tilesFromServer } from "@/lib/syndicate/hud";
+import { boostPoints } from "@/lib/warmap/synergy";
 
 export async function prepareBattle(input: { owner: string; from: string; to: string; action: WarAction; taxMaster: string; slippage: number }) {
   const userId = await requireUserId();
@@ -60,10 +63,12 @@ export async function confirmBattle(id: string, txBoc?: string) {
   const status = settledBattle(event, expected);
   if (status !== "confirmed") return { status, eventId: event.event_id };
   const window = seasonWindow(event.timestamp * 1000);
+  const liveShares = await warMapTiles().then((r) => tilesFromServer(r).shares).catch(() => ({} as Record<string, number>));
+  const points = boostPoints(seasonPoints(expected.action, expected.usd), expected.toSymbol, liveShares);
   // Atomic canonical insert + settlement; globally unique event prevents replay.
   await sql`WITH added AS (
     INSERT INTO memewar_merges (season, wallet, tx_boc_hash, action, from_master, to_master, to_symbol, to_image, usd, points, verified, user_id, from_symbol, from_amount, created_at)
-    VALUES (${window.id}, ${expected.owner}, ${event.event_id}, ${expected.action}, ${expected.from}, ${expected.to}, ${expected.toSymbol}, ${expected.toImage}, ${expected.usd}, ${seasonPoints(expected.action, expected.usd)}, TRUE, ${userId}, ${expected.fromSymbol}, ${expected.fromAmount}, ${new Date(event.timestamp * 1000).toISOString()})
+    VALUES (${window.id}, ${expected.owner}, ${event.event_id}, ${expected.action}, ${expected.from}, ${expected.to}, ${expected.toSymbol}, ${expected.toImage}, ${expected.usd}, ${points}, TRUE, ${userId}, ${expected.fromSymbol}, ${expected.fromAmount}, ${new Date(event.timestamp * 1000).toISOString()})
     ON CONFLICT (tx_boc_hash) DO NOTHING RETURNING id
   ) UPDATE memewar_intents SET status = 'confirmed', event_id = ${event.event_id} WHERE id = ${id} AND user_id = ${userId}`;
   return { status: "confirmed" as const, eventId: event.event_id };
