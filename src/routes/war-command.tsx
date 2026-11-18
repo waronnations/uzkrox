@@ -2,6 +2,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { WarCommandDeck } from "@/components/command/WarCommandDeck";
+import { PreflightDeck } from "@/components/command/PreflightDeck";
 
 export const Route = createFileRoute("/war-command")({
   head: () => ({
@@ -26,6 +27,7 @@ function WarCommand() {
         <h1 className="hud-title text-xs">WAR COMMAND</h1>
         <span className="w-14" />
       </header>
+      <PreflightDeck />
       <WarCommandDeck fill onJump={() => navigate({ to: "/" })} />
     </main>
   );
