@@ -85,7 +85,7 @@ export function Top100Board({ owned, onPick }: { owned: Set<string>; onPick?: (c
                 <div className="hud-card mt-2 grid grid-cols-3 gap-2 p-3 text-center text-[11px]">
                   <div><div className="hud-label">24h volume</div><b>{usd(c.volume24hUsd)}</b></div>
                   <div><div className="hud-label">Liquidity</div><b>{usd(c.liquidityUsd)}</b></div>
-                  <div><div className="hud-label">Price</div><b>{c.priceUsd < 0.01 ? c.priceUsd.toPrecision(2) : c.priceUsd.toFixed(3)}</b></div>
+                  <div><div className="hud-label">Price</div><b>{c.priceUsd <= 0 ? "—" : c.priceUsd < 0.01 ? `$${c.priceUsd.toPrecision(2)}` : `$${c.priceUsd.toFixed(3)}`}</b></div>
                   <p className="col-span-3 text-muted-foreground">
                     {mine ? "Deployed troops — tap it in your army above to battle." : "Not in your army. Deploy troops with Quick Swap in the Earn tab to fight for it."}
                   </p>
