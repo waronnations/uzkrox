@@ -13,7 +13,7 @@ export const PRIMARY_TABS: {
 }[] = [
   { id: "play", label: "War", icon: Swords },
   { id: "season", label: "Season", icon: Trophy },
-  { id: "world", label: "Nations", icon: Globe2 },
+  { id: "world", label: "Syndicates", icon: Globe2 },
   { id: "earn", label: "Rewards", icon: Coins },
   { id: "base", label: "Profile", icon: User },
 ];

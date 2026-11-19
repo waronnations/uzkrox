@@ -20,7 +20,7 @@ export function ListModal({
     <TacticalModal
       open={showListModal}
       onClose={() => setShowListModal(false)}
-      title="List Nation for Sale"
+      title="List Syndicate for Sale"
       subtitle={"Price in tokens (0.5 – 10 000). Selling marks you as Traitor."}
       badge="Market listing"
       tone="amber"

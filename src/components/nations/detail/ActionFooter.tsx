@@ -44,7 +44,7 @@ export function ActionFooter({
               ? "Joining..."
               : selected.isProtected
                 ? "Join (contribution required)"
-                : "Join Nation"}
+                : "Join Syndicate"}
           </button>
         )}
 

@@ -17,8 +17,8 @@ export const TAB_HERO: Record<PrimaryTab | "ops" | "battlefield", { title: strin
     desc: "Finish the 3 daily ops, then tap CLAIM — rewards only pay when claimed.",
   },
   world: {
-    title: "Nations",
-    desc: "Join or lead a nation, or launch Strategic Nukes against other countries.",
+    title: "Syndicates & Cabals",
+    desc: "Join a KOL or dev syndicate, climb from Shill Recruit to Cabal Kingpin, and raid rival cabals.",
   },
   earn: {
     title: "Rewards",

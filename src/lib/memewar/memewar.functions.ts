@@ -103,3 +103,15 @@ export const setWarPreferencesFn = createServerFn({ method: "POST" })
 export const claimWarMissionFn = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.undefined().parse(d))
   .handler(async () => claimBattleMission(await requireUserId()));
+
+/** Public Top-100 Coin Board (STON.fi market data, cached 10 min server-side). */
+export const getTop100Fn = createServerFn({ method: "GET" }).handler(async () => {
+  try {
+    const { getMarketCoins } = await import("@/lib/market/market.server");
+    const { rankTop100 } = await import("./top100");
+    return { coins: rankTop100(await getMarketCoins()), error: null as string | null };
+  } catch (e) {
+    console.error("[memewar] top100 failed", e);
+    return { coins: [], error: "market_unavailable" };
+  }
+});

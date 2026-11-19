@@ -29,7 +29,7 @@ export function DonateModal({
       onClose={() => setShowDonateModal(false)}
       title="Donate to Vault"
       subtitle={selected ? `Support ${selected.name}` : undefined}
-      badge="Nation treasury"
+      badge="Syndicate treasury"
       tone="green"
       layer="base"
       align="center"

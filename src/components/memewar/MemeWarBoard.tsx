@@ -11,6 +11,7 @@ import { MEMEWAR_BOARD_SLOTS } from "@/lib/constants/memewar";
 import { getWarHoldingsFn, getWarSeasonFn } from "@/lib/memewar/memewar.functions";
 import { haptic } from "@/lib/telegram";
 import { WarCoinTile } from "./WarCoinTile";
+import { Top100Board } from "./Top100Board";
 import { WarMergeModal } from "./WarMergeModal";
 import { DominanceMeter, SeasonBar } from "./WarHud";
 
@@ -50,6 +51,7 @@ export function MemeWarBoard({ embedded = false }: { embedded?: boolean } = {}) 
   }, []);
 
   const board = useMemo(() => (holdings ?? []).slice(0, MEMEWAR_BOARD_SLOTS), [holdings]);
+  const owned = useMemo(() => new Set(demo ? [] : (holdings ?? []).map((h) => h.coin.master)), [holdings, demo]);
   const dom = useMemo(() => dominance(board), [board]);
   const totalKey = board.reduce((s, h) => s + (dom.top && dom.top.usd > 0 ? h.usd : h.amount), 0) || 1;
 
@@ -134,6 +136,8 @@ export function MemeWarBoard({ embedded = false }: { embedded?: boolean } = {}) 
       <p className="mt-4 text-center text-[11px] text-muted-foreground">
         Drag a coin onto another — or tap two coins — to start a battle. Routes are checked on DeDust and STON.fi.
       </p>
+
+      <Top100Board owned={owned} />
 
       <AnimatePresence>
         {battle && (

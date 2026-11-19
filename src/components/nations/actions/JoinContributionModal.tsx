@@ -18,9 +18,9 @@ export function JoinContributionModal({
     <TacticalModal
       open={showJoinContributionModal}
       onClose={() => setShowJoinContributionModal(false)}
-      title="Protected Nation"
+      title="Protected Syndicate"
       subtitle={"This nation is under 24h protection. To join you must contribute to the vault:"}
-      badge="Nation treasury"
+      badge="Syndicate treasury"
       tone="green"
       layer="top"
       align="center"

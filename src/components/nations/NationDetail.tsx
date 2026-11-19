@@ -71,8 +71,8 @@ export function NationDetail({
     <TacticalModal
       open={!!selected || detailsLoading}
       onClose={() => setSelected(null)}
-      title="Nation intel"
-      badge="Nation intel"
+      title="Syndicate intel"
+      badge="Syndicate intel"
       badgeIcon={Globe2}
       tone="cyan"
       sound="none"

@@ -10,8 +10,8 @@ describe("NATION_FACTIONS", () => {
 
 describe("factionLabel", () => {
   it("labels known factions and falls back to Unaligned", () => {
-    expect(factionLabel("wardog")).toBe("WARDOG");
-    expect(factionLabel("warcat")).toBe("WARCAT");
+    expect(factionLabel("wardog")).toBe("WARDOG SYNDICATE");
+    expect(factionLabel("warcat")).toBe("WARCAT CABAL");
     expect(factionLabel(null)).toBe("Unaligned");
     expect(factionLabel(undefined)).toBe("Unaligned");
   });
@@ -19,16 +19,16 @@ describe("factionLabel", () => {
 
 describe("getReputationTier", () => {
   it("returns Recruit below 40", () => {
-    expect(getReputationTier(0).tier).toBe("Recruit");
+    expect(getReputationTier(0).tier).toBe("Shill Recruit");
   });
   it("returns Legendary at 800+", () => {
-    expect(getReputationTier(800).tier).toBe("Legendary");
+    expect(getReputationTier(800).tier).toBe("Cabal Kingpin");
   });
   it("is monotonic across boundaries", () => {
-    expect(getReputationTier(39).tier).toBe("Recruit");
-    expect(getReputationTier(40).tier).toBe("Rising");
-    expect(getReputationTier(119).tier).toBe("Rising");
-    expect(getReputationTier(120).tier).toBe("Established");
+    expect(getReputationTier(39).tier).toBe("Shill Recruit");
+    expect(getReputationTier(40).tier).toBe("Verified Dev");
+    expect(getReputationTier(119).tier).toBe("Verified Dev");
+    expect(getReputationTier(120).tier).toBe("Alpha Caller");
   });
 });
 

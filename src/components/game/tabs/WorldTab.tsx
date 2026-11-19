@@ -32,7 +32,7 @@ export function WorldTab({
       <TabHero tab="world" />
       <SubTabBar
         tabs={[
-          { id: "nations" as const, label: "Nations", icon: Flag },
+          { id: "nations" as const, label: "Syndicates", icon: Flag },
           { id: "strike" as const, label: "Strike", icon: Crosshair },
           { id: "warroom" as const, label: "War Room", icon: Skull },
           { id: "wealth" as const, label: "Wealth", icon: Crown },

@@ -49,3 +49,5 @@ use the editor.
 - Arena promotions are 50 USD₮ jetton transfers to the Claim Treasury with a per-intent `PROMO:` comment, granted only after `settledPromo` (src/lib/arena/promo.ts) matches the TonAPI event, because a slot must never be granted on a client claim.
 - Whale Radar trades come from GeckoTerminal (src/lib/whale/radar.server.ts, 2-minute cache) and enter the public War Room snapshot without wallet addresses, so the free API limit holds and no personal data leaks.
 - Citadel synergy (`src/lib/warmap/synergy.ts`) boosts Coin Board season points only from the LIVE map, applied server-side at battle settlement, because simulation tiles must never change real standings.
+- Coin Board Top 100 ranks by 24h volume (liquidity tiebreak) in pure `src/lib/memewar/top100.ts` from cached STON.fi market data; tiers Apex #1–10 / Frontline / Death Row #96–100, because STON.fi has no free per-token tx counts.
+- Nations are presented as Syndicates/Cabals (KOL/dev tiers Shill Recruit→Cabal Kingpin) via labels only; internal nation tables and code names stay, so saves and APIs keep working.

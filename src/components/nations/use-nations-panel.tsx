@@ -133,7 +133,7 @@ export function useNationsPanel({
       setNations(list);
     } catch (e) {
       console.error(e);
-      toast.error("Failed to load Nations");
+      toast.error("Failed to load Syndicates");
     } finally {
       setLoading(false);
     }
@@ -265,7 +265,7 @@ export function useNationsPanel({
       setUnlisting(true);
       haptic("medium");
       await unlistNationFn();
-      toast.success("Nation unlisted");
+      toast.success("Syndicate unlisted");
       await load();
       if (selected) await openDetails(selected.id);
     } catch (e) {

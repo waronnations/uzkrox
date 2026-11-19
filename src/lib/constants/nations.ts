@@ -15,8 +15,8 @@ export function randomNationFaction(): NationFaction {
 }
 
 export function factionLabel(faction: NationFaction | null | undefined): string {
-  if (faction === "wardog") return "WARDOG";
-  if (faction === "warcat") return "WARCAT";
+  if (faction === "wardog") return "WARDOG SYNDICATE";
+  if (faction === "warcat") return "WARCAT CABAL";
   return "Unaligned";
 }
 
@@ -119,30 +119,30 @@ export const MAX_REDEMPTION_PRICE = {
 export function getReputationTier(score: number) {
   if (score >= 800)
     return {
-      tier: "Legendary",
+      tier: "Cabal Kingpin",
       color: "text-amber-300",
       bg: "bg-amber-950/40 border-amber-500/40",
     };
   if (score >= 350)
     return {
-      tier: "Powerful",
+      tier: "Syndicate Whale",
       color: "text-purple-300",
       bg: "bg-purple-950/40 border-purple-500/40",
     };
   if (score >= 120)
     return {
-      tier: "Established",
+      tier: "Alpha Caller",
       color: "text-blue-300",
       bg: "bg-blue-950/40 border-blue-500/40",
     };
   if (score >= 40)
     return {
-      tier: "Rising",
+      tier: "Verified Dev",
       color: "text-emerald-300",
       bg: "bg-emerald-950/40 border-emerald-500/40",
     };
   return {
-    tier: "Recruit",
+    tier: "Shill Recruit",
     color: "text-zinc-400",
     bg: "bg-zinc-900 border-zinc-700",
   };
